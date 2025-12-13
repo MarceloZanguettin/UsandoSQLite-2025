@@ -62,6 +62,33 @@ class MainActivity : AppCompatActivity() {
     }
     fun btListarOnClick(view: View) {
 
+        val registros = banco.query(
+            "cadastro",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+
+        val saida = StringBuilder()
+
+
+        while ( registros.moveToNext() ) {
+            val nome = registros.getString(1)
+            val telefone = registros.getString(2)
+
+            saida.append( "${nome} - ${telefone}\n")
+
+        }
+
+        Toast.makeText(
+            this,
+            saida.toString(),
+            Toast.LENGTH_SHORT
+        ).show()
+
     }
 
 
