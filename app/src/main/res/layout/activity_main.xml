@@ -14,7 +14,7 @@
         android:text="Cod:" />
 
     <EditText
-        android:id="@+id/edCod"
+        android:id="@+id/etCod"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="number" />
@@ -25,7 +25,7 @@
         android:text="Nome:" />
 
     <EditText
-        android:id="@+id/edNome"
+        android:id="@+id/etNome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textCapWords" />
@@ -36,7 +36,7 @@
         android:text="Telefone:" />
 
     <EditText
-        android:id="@+id/edTelefone"
+        android:id="@+id/etTelefone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="phone" />
