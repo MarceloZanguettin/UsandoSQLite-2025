@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        banco = DatabaseHandler(this)
+        banco = DatabaseHandler.getInstance(this)
 
 
 
