@@ -10,13 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.usandosqlite_2025.database.DatabaseHandler
 import com.example.usandosqlite_2025.databinding.ActivityMainBinding
+import com.example.usandosqlite_2025.entity.Cadastro
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var banco: SQLiteDatabase
+    private lateinit var banco: DatabaseHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,13 +27,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        banco = openOrCreateDatabase(
-            "bdfile.sqlite",
-            MODE_PRIVATE,
-            null
-        )
+        banco = DatabaseHandler(this)
 
-        banco.execSQL( "CREATE TABLE IF NOT EXISTS cadastro (_id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT)")
 
 
 
@@ -44,15 +41,20 @@ class MainActivity : AppCompatActivity() {
 
     fun btIncluirOnClick(view: View) {
 
-        val registro = ContentValues()
-        registro.put( "nome", binding.etNome.text.toString())
-        registro.put( "telefone", binding.etTelefone.text.toString())
+        //Validação dos campos de tela
 
-        banco.insert(
-            "cadastro",
-            null,
-            registro
+        val cadastro = Cadastro(
+            0,
+            binding.etNome.text.toString(),
+            binding.etTelefone.text.toString()
+
         )
+
+        //Inclusão no banco de dados
+
+        banco.inserir(cadastro)
+
+        //apresentação da devolutiva visual para o usuário
 
         Toast.makeText(
             this,
@@ -62,16 +64,10 @@ class MainActivity : AppCompatActivity() {
     }
     fun btListarOnClick(view: View) {
 
-        val registros = banco.query(
-            "cadastro",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        )
+        //acesso ao banco de dados
+        val registros : Cursor = banco.listar()
 
+        //apresentação da devolutiva visual para o usuário
         val saida = StringBuilder()
 
 
@@ -94,22 +90,15 @@ class MainActivity : AppCompatActivity() {
 
     fun btPesquisarOnClick(view: View) {
 
-        val registro: Cursor = banco.query(
-            "cadastro",
-            null,
-            "_id = ${binding.etCod.text.toString()}",
-            null,
-            null,
-            null,
-            null
-        )
+        //Validação dos campos de tela
 
-        if ( registro.moveToNext() ) {
 
-            val nome = registro.getString(1)
-            val telefone = registro.getString(2)
-            binding.etNome.setText(nome)
-            binding.etTelefone.setText(telefone)
+        //acesso ao banco
+        val cadastro :Cadastro? = banco.pesquisar(binding.etCod.text.toString().toInt())
+
+        if ( cadastro != null ) {
+            binding.etNome.setText(cadastro.nome)
+            binding.etTelefone.setText(cadastro.telefone)
 
         } else {
 
@@ -126,12 +115,12 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun btExcluirOnClick(view: View) {
-        banco.delete(
-            "cadastro",
-            "_id = ${binding.etCod.text.toString()}",
-            null
-        )
+        //Validação dos campos de tela
 
+        //acesso ao banco de dados
+        banco.excluir( binding.etCod.text.toString().toInt() )
+
+        //Apresentação da devolutiva visual para o usuário
         Toast.makeText(
             this,
             "Exclusão efetuada com sucesso.",
@@ -139,16 +128,23 @@ class MainActivity : AppCompatActivity() {
         ).show()
     }
     fun btAlterarOnClick(view: View) {
-        val registro = ContentValues()
-        registro.put( "nome", binding.etNome.text.toString())
-        registro.put( "telefone", binding.etTelefone.text.toString())
 
-        banco.update(
-            "cadastro",
-            registro,
-            "_id = ${binding.etCod.text.toString()}",
-            null
+        //Validação dos campos de tela
+
+        //acesso ao banco de dados
+        val cadastro : Cadastro = Cadastro(
+            binding.etCod.text.toString().toInt(),
+            binding.etNome.text.toString(),
+            binding.etTelefone.text.toString()
+
         )
+
+        //Alteração no banco de dados
+
+        banco.alterar(cadastro)
+
+
+        //Apresentação da devolutiva visual para o usuário
 
         Toast.makeText(
             this,
