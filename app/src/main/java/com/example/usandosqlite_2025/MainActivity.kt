@@ -1,6 +1,7 @@
 package com.example.usandosqlite_2025
 
 import android.content.ContentValues
+import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
@@ -67,28 +68,33 @@ class MainActivity : AppCompatActivity() {
     }
     fun btListarOnClick(view: View) {
 
-        //acesso ao banco de dados
-        val registros : Cursor = banco.listar()
-
-        //apresentação da devolutiva visual para o usuário
-        val saida = StringBuilder()
-
-
-        while ( registros.moveToNext() ) {
-            val nome : String? = registros.getString(DatabaseHandler.COLUMN_NOME.toInt())
-            val telefone : String? = registros.getString(COLUMN_TELEFONE.toInt())
-
-            saida.append( "${nome} - ${telefone}\n")
-
-        }
-
-        Toast.makeText(
-            this,
-            saida.toString(),
-            Toast.LENGTH_SHORT
-        ).show()
-
+        val intent = Intent(this, ListarActivity::class.java)
+        startActivity(intent)
     }
+
+
+//        //acesso ao banco de dados
+//        val registros : Cursor = banco.listar()
+//
+//        //apresentação da devolutiva visual para o usuário
+//        val saida = StringBuilder()
+//
+//
+//        while ( registros.moveToNext() ) {
+//            val nome : String? = registros.getString(DatabaseHandler.COLUMN_NOME.toInt())
+//            val telefone : String? = registros.getString(COLUMN_TELEFONE.toInt())
+//
+//            saida.append( "${nome} - ${telefone}\n")
+//
+//        }
+//
+//        Toast.makeText(
+//            this,
+//            saida.toString(),
+//            Toast.LENGTH_SHORT
+//        ).show()
+
+
 
 
     fun btPesquisarOnClick(view: View) {
