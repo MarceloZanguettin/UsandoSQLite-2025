@@ -1,6 +1,7 @@
 package com.example.usandosqlite_2025
 
 import android.content.ContentValues
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.View
@@ -62,7 +63,41 @@ class MainActivity : AppCompatActivity() {
     fun btListarOnClick(view: View) {
 
     }
-    fun btPesquisarOnClick(view: View) {}
+
+
+    fun btPesquisarOnClick(view: View) {
+
+        val registro: Cursor = banco.query(
+            "cadastro",
+            null,
+            "_id = ${binding.etCod.text.toString()}",
+            null,
+            null,
+            null,
+            null
+        )
+
+        if ( registro.moveToNext() ) {
+
+            val nome = registro.getString(1)
+            val telefone = registro.getString(2)
+            binding.etNome.setText(nome)
+            binding.etTelefone.setText(telefone)
+
+        } else {
+
+            binding.etNome.setText("")
+            binding.etTelefone.setText("")
+
+            Toast.makeText(
+                this,
+                "Registro não encontrado.",
+                Toast.LENGTH_SHORT
+            ).show()
+
+        }
+
+    }
     fun btExcluirOnClick(view: View) {
         banco.delete(
             "cadastro",
