@@ -63,7 +63,19 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun btPesquisarOnClick(view: View) {}
-    fun btExcluirOnClick(view: View) {}
+    fun btExcluirOnClick(view: View) {
+        banco.delete(
+            "cadastro",
+            "_id = ${binding.etCod.text.toString()}",
+            null
+        )
+
+        Toast.makeText(
+            this,
+            "Exclusão efetuada com sucesso.",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
     fun btAlterarOnClick(view: View) {
         val registro = ContentValues()
         registro.put( "nome", binding.etNome.text.toString())
