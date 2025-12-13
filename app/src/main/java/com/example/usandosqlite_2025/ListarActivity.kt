@@ -1,16 +1,21 @@
 package com.example.usandosqlite_2025
 
+import android.database.Cursor
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import android.widget.SimpleCursorAdapter
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.usandosqlite_2025.database.DatabaseHandler
 import com.example.usandosqlite_2025.databinding.ActivityListarBinding
 
 class ListarActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityListarBinding
+
+    private lateinit var banco: DatabaseHandler
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,6 +24,9 @@ class ListarActivity : AppCompatActivity() {
 
         binding = ActivityListarBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        banco = DatabaseHandler.getInstance(this)
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.lvRegistros)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -30,22 +38,36 @@ class ListarActivity : AppCompatActivity() {
     }
 
     private fun initList() {
-        val lista = listOf<String>(
-            "Brasil",
-            "Argentina",
-            "Bolivia",
-            "Chile",
-            "Colombia",
-            "Equador",
-            "Paraguai",
-            "Perú",
-            "Uruguai"
+//        val lista = listOf<String>(
+//            "Brasil",
+//            "Argentina",
+//            "Bolivia",
+//            "Chile",
+//            "Colombia",
+//            "Equador",
+//            "Paraguai",
+//            "Perú",
+//            "Uruguai"
+//        )
+//
+//        val adapter = ArrayAdapter(
+//            this,
+//            android.R.layout.simple_list_item_1,
+//            lista
+//        )
+
+        val cursor : Cursor = banco.listar()
+
+        val adapter = SimpleCursorAdapter(
+            this,
+            android.R.layout.simple_list_item_2,
+            cursor,
+            arrayOf("nome", "telefone"),
+            intArrayOf(android.R.id.text1, android.R.id.text2),
+            0
         )
 
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            lista)
+
         binding.lvRegistros.adapter = adapter
     }
 }
