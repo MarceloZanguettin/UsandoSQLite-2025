@@ -1,6 +1,7 @@
 package com.example.usandosqlite_2025
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -17,4 +18,10 @@ class MainActivity : AppCompatActivity() {
             insets
         }
     }
+
+    fun btIncluirOnClick(view: View) {}
+    fun btListarOnClick(view: View) {}
+    fun btPesquisarOnClick(view: View) {}
+    fun btExcluirOnClick(view: View) {}
+    fun btAlterarOnClick(view: View) {}
 }
