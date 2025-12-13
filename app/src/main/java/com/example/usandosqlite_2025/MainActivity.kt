@@ -11,8 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.usandosqlite_2025.database.DatabaseHandler
+import com.example.usandosqlite_2025.database.DatabaseHandler.Companion.COLUMN_NOME
+import com.example.usandosqlite_2025.database.DatabaseHandler.Companion.COLUMN_TELEFONE
 import com.example.usandosqlite_2025.databinding.ActivityMainBinding
 import com.example.usandosqlite_2025.entity.Cadastro
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,8 +75,8 @@ class MainActivity : AppCompatActivity() {
 
 
         while ( registros.moveToNext() ) {
-            val nome = registros.getString(1)
-            val telefone = registros.getString(2)
+            val nome : String? = registros.getString(DatabaseHandler.COLUMN_NOME.toInt())
+            val telefone : String? = registros.getString(COLUMN_TELEFONE.toInt())
 
             saida.append( "${nome} - ${telefone}\n")
 
