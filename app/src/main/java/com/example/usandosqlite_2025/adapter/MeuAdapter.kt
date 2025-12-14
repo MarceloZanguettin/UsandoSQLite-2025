@@ -2,73 +2,88 @@ package com.example.usandosqlite_2025.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageButton
 import android.widget.TextView
 import com.example.usandosqlite_2025.MainActivity
 import com.example.usandosqlite_2025.R
-import com.example.usandosqlite_2025.database.DatabaseHandler
 import com.example.usandosqlite_2025.entity.Cadastro
-import kotlin.jvm.java
 
-class MeuAdapter(val context: Context, val cursor: Cursor): BaseAdapter() {
+class MeuAdapter(val context: Context, private var cadastros: List<Cadastro>) : BaseAdapter(), Filterable {
+
+    private var filteredCadastros = cadastros
 
     override fun getCount(): Int {
-        return cursor.count
+        return filteredCadastros.size
     }
 
-    override fun getItem(position: Int): Any? {
-        cursor.moveToPosition(position)
-
-        val cadastro = Cadastro(
-            cursor.getInt(DatabaseHandler.COLUMN_ID.toInt()),
-            cursor.getString(DatabaseHandler.COLUMN_NOME.toInt()),
-            cursor.getString(DatabaseHandler.COLUMN_TELEFONE.toInt())
-        )
-
-        return cadastro
+    override fun getItem(position: Int): Any {
+        return filteredCadastros[position]
     }
 
     override fun getItemId(position: Int): Long {
-        cursor.moveToPosition(position)
-        return cursor.getInt(DatabaseHandler.COLUMN_ID.toInt()).toLong()
+        return filteredCadastros[position]._id.toLong()
     }
 
-    override fun getView(
-        position: Int,
-        convertView: View?,
-        parent: ViewGroup?
-    ): View? {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        val view: View
+        val holder: ViewHolder
 
-        //recupera a instancia do nosso elemento lista (container com dados de cada elemento da lista)
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val v = inflater.inflate(R.layout.elemento_lista, null)
+        if (convertView == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.elemento_lista, parent, false)
+            holder = ViewHolder(view)
+            view.tag = holder
+        } else {
+            view = convertView
+            holder = view.tag as ViewHolder
+        }
 
-        //recupero os componentes visuais da tela
-        val tvNomeElementoLista  = v.findViewById<TextView>(R.id.tvNomeElementoLista)
-        val tvTelefoneElementoLista = v.findViewById<TextView>(R.id.tvTelefoneElementoLista)
-        val btEditarElementoLista = v.findViewById<ImageButton>(R.id.btEditarElementoLista)
+        val cadastro = filteredCadastros[position]
+        holder.tvNomeElementoLista.text = cadastro.nome
+        holder.tvTelefoneElementoLista.text = cadastro.telefone
 
-        cursor.moveToPosition(position)
-        tvNomeElementoLista.text = cursor.getString(DatabaseHandler.COLUMN_NOME.toInt())
-        tvTelefoneElementoLista.text = cursor.getString(DatabaseHandler.COLUMN_TELEFONE.toInt())
-
-        btEditarElementoLista.setOnClickListener {
+        holder.btEditarElementoLista.setOnClickListener {
             val intent = Intent(context, MainActivity::class.java)
-            cursor.moveToPosition(position)
-            intent.putExtra("cod", cursor.getInt(DatabaseHandler.COLUMN_ID.toInt()))
-            intent.putExtra("nome", cursor.getString(DatabaseHandler.COLUMN_NOME.toInt()))
-            intent.putExtra("telefone", cursor.getString(DatabaseHandler.COLUMN_TELEFONE.toInt()))
-
+            intent.putExtra("cod", cadastro._id)
+            intent.putExtra("nome", cadastro.nome)
+            intent.putExtra("telefone", cadastro.telefone)
             context.startActivity(intent)
         }
 
+        return view
+    }
 
-        return v
+    private class ViewHolder(view: View) {
+        val tvNomeElementoLista: TextView = view.findViewById(R.id.tvNomeElementoLista)
+        val tvTelefoneElementoLista: TextView = view.findViewById(R.id.tvTelefoneElementoLista)
+        val btEditarElementoLista: ImageButton = view.findViewById(R.id.btEditarElementoLista)
+    }
 
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint?.toString() ?: ""
+                filteredCadastros = if (charString.isEmpty()) {
+                    cadastros
+                } else {
+                    cadastros.filter {
+                        it.nome.contains(charString, true) || it.telefone.contains(charString, true)
+                    }
+                }
+                val filterResults = FilterResults()
+                filterResults.values = filteredCadastros
+                return filterResults
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                filteredCadastros = results?.values as List<Cadastro>
+                notifyDataSetChanged()
+            }
+        }
     }
 }

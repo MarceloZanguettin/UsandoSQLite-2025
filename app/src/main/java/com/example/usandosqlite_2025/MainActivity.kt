@@ -1,9 +1,6 @@
 package com.example.usandosqlite_2025
 
-import android.content.ContentValues
 import android.content.Intent
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -14,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.usandosqlite_2025.database.DatabaseHandler
-import com.example.usandosqlite_2025.database.DatabaseHandler.Companion.COLUMN_NOME
-import com.example.usandosqlite_2025.database.DatabaseHandler.Companion.COLUMN_TELEFONE
 import com.example.usandosqlite_2025.databinding.ActivityMainBinding
 import com.example.usandosqlite_2025.entity.Cadastro
 
@@ -23,7 +18,6 @@ import com.example.usandosqlite_2025.entity.Cadastro
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
     private lateinit var banco: DatabaseHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,15 +29,11 @@ class MainActivity : AppCompatActivity() {
 
         banco = DatabaseHandler.getInstance(this)
 
-
-
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
     }
 
     override fun onStart() {
@@ -52,148 +42,107 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        if (intent.getIntExtra("cod", 0) != 0) {
-            binding.etCod.setText(intent.getIntExtra("cod", 0).toString())
+        val cod = intent.getIntExtra("cod", 0)
+        if (cod != 0) {
+            binding.etCod.setText(cod.toString())
             binding.etNome.setText(intent.getStringExtra("nome"))
             binding.etTelefone.setText(intent.getStringExtra("telefone"))
-
+            binding.btExcluir.visibility = View.VISIBLE
+            binding.btPesquisar.visibility = View.GONE
         } else {
             binding.btExcluir.visibility = View.GONE
-            binding.btPesquisar.visibility = View.GONE
-
+            binding.btPesquisar.visibility = View.VISIBLE
+            binding.etCod.text.clear()
+            binding.etNome.text.clear()
+            binding.etTelefone.text.clear()
         }
     }
 
-
     fun btListarOnClick(view: View) {
-
         val intent = Intent(this, ListarActivity::class.java)
         startActivity(intent)
     }
 
-
-//        //acesso ao banco de dados
-//        val registros : Cursor = banco.listar()
-//
-//        //apresentação da devolutiva visual para o usuário
-//        val saida = StringBuilder()
-//
-//
-//        while ( registros.moveToNext() ) {
-//            val nome : String? = registros.getString(DatabaseHandler.COLUMN_NOME.toInt())
-//            val telefone : String? = registros.getString(COLUMN_TELEFONE.toInt())
-//
-//            saida.append( "${nome} - ${telefone}\n")
-//
-//        }
-//
-//        Toast.makeText(
-//            this,
-//            saida.toString(),
-//            Toast.LENGTH_SHORT
-//        ).show()
-
-
-
-
     fun btPesquisarOnClick(view: View) {
+        val etCodPesquisar = EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
 
-        //Validação dos campos de tela
-
-
-        //acesso ao banco
-        val etCodPesquisar = EditText(this)
-
-
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Digite o Código")
-        builder.setView(etCodPesquisar)
-        builder.setCancelable(false)
-        builder.setNegativeButton(
-            "Fechar",
-            null
-        )
-        builder.setPositiveButton(
-            "Pesquisar",
-            { dialog, which ->
-                val cadastro = banco.pesquisar(etCodPesquisar.text.toString().toInt())
-                if ( cadastro != null ) {
-                    binding.etCod.setText(etCodPesquisar.text.toString())
-                    binding.etNome.setText(cadastro.nome)
-                    binding.etTelefone.setText(cadastro.telefone)
-
-                } else {
-
-                    binding.etNome.setText("")
-                    binding.etTelefone.setText("")
-
-                    Toast.makeText(
-                        this,
-                        "Registro não encontrado.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
+        AlertDialog.Builder(this)
+            .setTitle("Digite o Código")
+            .setView(etCodPesquisar)
+            .setCancelable(false)
+            .setNegativeButton("Fechar", null)
+            .setPositiveButton("Pesquisar") { _, _ ->
+                val cod = etCodPesquisar.text.toString().toIntOrNull()
+                if (cod == null) {
+                    Toast.makeText(this, "Por favor, insira um código válido.", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
                 }
 
+                val cadastro = banco.pesquisar(cod)
+                if (cadastro != null) {
+                    binding.etCod.setText(cadastro._id.toString())
+                    binding.etNome.setText(cadastro.nome)
+                    binding.etTelefone.setText(cadastro.telefone)
+                    binding.btExcluir.visibility = View.VISIBLE
+                } else {
+                    binding.etCod.setText("")
+                    binding.etNome.setText("")
+                    binding.etTelefone.setText("")
+                    Toast.makeText(this, "Registro não encontrado.", Toast.LENGTH_SHORT).show()
+                }
             }
-        )
-        builder.show()
-
+            .show()
     }
+
     fun btExcluirOnClick(view: View) {
-        //Validação dos campos de tela
+        val cod = binding.etCod.text.toString().toIntOrNull()
+        if (cod == null) {
+            Toast.makeText(this, "Código inválido para exclusão.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        //acesso ao banco de dados
-        banco.excluir( binding.etCod.text.toString().toInt() )
-
-        //Apresentação da devolutiva visual para o usuário
-        Toast.makeText(
-            this,
-            "Exclusão efetuada com sucesso.",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        finish()
+        AlertDialog.Builder(this)
+            .setTitle("Confirmar Exclusão")
+            .setMessage("Tem certeza que deseja excluir este registro?")
+            .setPositiveButton("Sim") { _, _ ->
+                banco.excluir(cod)
+                Toast.makeText(this, "Exclusão efetuada com sucesso.", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .setNegativeButton("Não", null)
+            .show()
     }
+
     fun btSalvarOnClick(view: View) {
+        val nome = binding.etNome.text.toString()
+        val telefone = binding.etTelefone.text.toString()
 
-        //Validação dos campos de tela
+        if (nome.isBlank() || telefone.isBlank()) {
+            Toast.makeText(this, "Nome e telefone são obrigatórios.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        //acesso ao banco de dados
-        var msg = ""
+        val codStr = binding.etCod.text.toString()
+        var msg: String
 
-        if ( binding.etCod.text.toString().isEmpty()) {
-            val cadastro = Cadastro(
-                0,
-                binding.etNome.text.toString(),
-                binding.etTelefone.text.toString()
-
-            )
-
-            //Inclusão no banco de dados
-
+        if (codStr.isEmpty()) {
+            val cadastro = Cadastro(0, nome, telefone)
             banco.inserir(cadastro)
             msg = "Inclusão efetuada com sucesso."
         } else {
-            val cadastro = Cadastro( binding.etCod.text.toString().toInt(),
-                binding.etNome.text.toString(),
-                binding.etTelefone.text.toString()
-            )
-
+            val cod = codStr.toIntOrNull()
+            if (cod == null) {
+                Toast.makeText(this, "Código inválido para alteração.", Toast.LENGTH_SHORT).show()
+                return
+            }
+            val cadastro = Cadastro(cod, nome, telefone)
             banco.alterar(cadastro)
             msg = "Alteração efetuada com sucesso."
-
         }
 
-
-        //Apresentação da devolutiva visual para o usuário
-
-        Toast.makeText(
-            this,
-            msg,
-            Toast.LENGTH_SHORT
-        ).show()
-
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         finish()
     }
 }
