@@ -2,12 +2,16 @@ package com.example.usandosqlite_2025
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.widget.SearchView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.usandosqlite_2025.adapter.MeuAdapter
 import com.example.usandosqlite_2025.database.DatabaseHandler
 import com.example.usandosqlite_2025.databinding.ActivityListarBinding
+import kotlinx.coroutines.launch
 
 class ListarActivity : AppCompatActivity() {
 
@@ -17,41 +21,53 @@ class ListarActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         binding = ActivityListarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        banco = DatabaseHandler.getInstance(this)
+        banco = DatabaseHandler.getInstance()
 
-        initList()
-        initSearchView()
-    }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
-    override fun onResume() {
-        super.onResume()
-        initList() // Atualiza a lista quando a activity é retomada
-    }
+        binding.btIncluir.setOnClickListener {
+            btIncluirOnClick()
+        }
 
-    private fun initList() {
-        val cadastros = banco.listar()
-        adapter = MeuAdapter(this, cadastros)
-        binding.lvRegistros.adapter = adapter
-    }
-
-    private fun initSearchView() {
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.svFiltro.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                // Não precisamos de ação no submit, o filtro é em tempo real
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                adapter.filter.filter(newText)
+                // Chama a inicialização da lista com o novo texto do filtro
+                initList(newText ?: "")
                 return true
             }
         })
     }
 
-    fun fabIncluirOnClick(view: View) {
+    override fun onStart() {
+        super.onStart()
+        // Carrega a lista completa ao iniciar ou retornar para a tela
+        initList()
+    }
+
+    private fun btIncluirOnClick() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun initList(filtro: String = "") {
+        lifecycleScope.launch {
+            val cadastro = banco.listar(filtro)
+            adapter = MeuAdapter(this@ListarActivity, cadastro)
+            binding.lvRegistros.adapter = adapter
+        }
     }
 }

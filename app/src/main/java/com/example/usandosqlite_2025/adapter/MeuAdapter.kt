@@ -2,88 +2,68 @@ package com.example.usandosqlite_2025.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.ImageButton
 import android.widget.TextView
 import com.example.usandosqlite_2025.MainActivity
 import com.example.usandosqlite_2025.R
+import com.example.usandosqlite_2025.database.DatabaseHandler
 import com.example.usandosqlite_2025.entity.Cadastro
 
-class MeuAdapter(val context: Context, private var cadastros: List<Cadastro>) : BaseAdapter(), Filterable {
-
-    private var filteredCadastros = cadastros
+class MeuAdapter(val context: Context, val registros: List<Cadastro>): BaseAdapter() {
 
     override fun getCount(): Int {
-        return filteredCadastros.size
+        return registros.size
     }
 
-    override fun getItem(position: Int): Any {
-        return filteredCadastros[position]
+    override fun getItem(pos: Int): Any? {
+
+        val cadastro = Cadastro(
+            registros.get(pos)._id,
+            registros.get(pos).nome,
+            registros.get(pos).telefone
+        )
+
+        return cadastro
     }
 
-    override fun getItemId(position: Int): Long {
-        return filteredCadastros[position]._id.toLong()
+    override fun getItemId(pos: Int): Long {
+        return registros.get(pos)._id.toInt().toLong()
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view: View
-        val holder: ViewHolder
+    override fun getView(
+        pos: Int,
+        p1: View?,
+        p2: ViewGroup?
+    ): View? {
 
-        if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.elemento_lista, parent, false)
-            holder = ViewHolder(view)
-            view.tag = holder
-        } else {
-            view = convertView
-            holder = view.tag as ViewHolder
-        }
+        //recupera a instancia do nosso elemento lista (container com dados de cada elemento da lista)
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val v = inflater.inflate(R.layout.elemento_lista, null)
 
-        val cadastro = filteredCadastros[position]
-        holder.tvNomeElementoLista.text = cadastro.nome
-        holder.tvTelefoneElementoLista.text = cadastro.telefone
+        //recupera os componentes visuais da tela
+        val tvNomeElementoLista = v.findViewById<TextView>(R.id.tvNomeElementoLista)
+        val tvTelefoneElementoLista = v.findViewById<TextView>(R.id.tvTelefoneElementoLista)
+        val btEditarElementoLista = v.findViewById<ImageButton>(R.id.btEditarElementoLista )
 
-        holder.btEditarElementoLista.setOnClickListener {
+        tvNomeElementoLista.text = registros.get(pos).nome
+        tvTelefoneElementoLista.text = registros.get(pos).telefone
+
+        btEditarElementoLista.setOnClickListener {
             val intent = Intent(context, MainActivity::class.java)
-            intent.putExtra("cod", cadastro._id)
-            intent.putExtra("nome", cadastro.nome)
-            intent.putExtra("telefone", cadastro.telefone)
+
+            intent.putExtra("cod", registros.get(pos)._id)
+            intent.putExtra("nome", registros.get(pos).nome)
+            intent.putExtra( "telefone", registros.get(pos).telefone)
+
             context.startActivity(intent)
         }
 
-        return view
+        return v
     }
 
-    private class ViewHolder(view: View) {
-        val tvNomeElementoLista: TextView = view.findViewById(R.id.tvNomeElementoLista)
-        val tvTelefoneElementoLista: TextView = view.findViewById(R.id.tvTelefoneElementoLista)
-        val btEditarElementoLista: ImageButton = view.findViewById(R.id.btEditarElementoLista)
-    }
-
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val charString = constraint?.toString() ?: ""
-                filteredCadastros = if (charString.isEmpty()) {
-                    cadastros
-                } else {
-                    cadastros.filter {
-                        it.nome.contains(charString, true) || it.telefone.contains(charString, true)
-                    }
-                }
-                val filterResults = FilterResults()
-                filterResults.values = filteredCadastros
-                return filterResults
-            }
-
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredCadastros = results?.values as List<Cadastro>
-                notifyDataSetChanged()
-            }
-        }
-    }
 }
