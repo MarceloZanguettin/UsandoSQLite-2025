@@ -52,7 +52,8 @@ class MainActivity : AppCompatActivity() {
             binding.etTelefone.setText(intent.getStringExtra("telefone"))
 
         } else {
-            //tratar a inclusão (novo registro)
+            binding.btExcluir.visibility = View.GONE
+            binding.btPesquisar.visibility = View.GONE
 
         }
     }
@@ -127,6 +128,8 @@ class MainActivity : AppCompatActivity() {
             "Exclusão efetuada com sucesso.",
             Toast.LENGTH_SHORT
         ).show()
+
+        finish()
     }
     fun btSalvarOnClick(view: View) {
 
@@ -166,5 +169,7 @@ class MainActivity : AppCompatActivity() {
             msg,
             Toast.LENGTH_SHORT
         ).show()
+
+        finish()
     }
 }
