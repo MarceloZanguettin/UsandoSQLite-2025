@@ -6,8 +6,10 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -100,24 +102,42 @@ class MainActivity : AppCompatActivity() {
 
 
         //acesso ao banco
-        val cadastro :Cadastro? = banco.pesquisar(binding.etCod.text.toString().toInt())
+        val etCodPesquisar = EditText(this)
 
-        if ( cadastro != null ) {
-            binding.etNome.setText(cadastro.nome)
-            binding.etTelefone.setText(cadastro.telefone)
 
-        } else {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Digite o Código")
+        builder.setView(etCodPesquisar)
+        builder.setCancelable(false)
+        builder.setNegativeButton(
+            "Fechar",
+            null
+        )
+        builder.setPositiveButton(
+            "Pesquisar",
+            { dialog, which ->
+                val cadastro = banco.pesquisar(etCodPesquisar.text.toString().toInt())
+                if ( cadastro != null ) {
+                    binding.etCod.setText(etCodPesquisar.text.toString())
+                    binding.etNome.setText(cadastro.nome)
+                    binding.etTelefone.setText(cadastro.telefone)
 
-            binding.etNome.setText("")
-            binding.etTelefone.setText("")
+                } else {
 
-            Toast.makeText(
-                this,
-                "Registro não encontrado.",
-                Toast.LENGTH_SHORT
-            ).show()
+                    binding.etNome.setText("")
+                    binding.etTelefone.setText("")
 
-        }
+                    Toast.makeText(
+                        this,
+                        "Registro não encontrado.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                }
+
+            }
+        )
+        builder.show()
 
     }
     fun btExcluirOnClick(view: View) {
