@@ -62,7 +62,7 @@ class DatabaseHandler private constructor (context: Context) : SQLiteOpenHelper(
         registro.put("nome", cadastro.nome)
         registro.put("telefone", cadastro.telefone)
 
-        writableDatabase.update(TABLE_NAME, registro, "id = ${cadastro._id}", null)
+        writableDatabase.update(TABLE_NAME, registro, "_id = ${cadastro._id}", null)
 
     }
 
