@@ -57,29 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun btIncluirOnClick(view: View) {
 
-        //Validação dos campos de tela
-
-        val cadastro = Cadastro(
-            0,
-            binding.etNome.text.toString(),
-            binding.etTelefone.text.toString()
-
-        )
-
-        //Inclusão no banco de dados
-
-        banco.inserir(cadastro)
-
-        //apresentação da devolutiva visual para o usuário
-
-        Toast.makeText(
-            this,
-            "Inclusão efetuada com sucesso.",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
     fun btListarOnClick(view: View) {
 
         val intent = Intent(this, ListarActivity::class.java)
@@ -150,28 +128,42 @@ class MainActivity : AppCompatActivity() {
             Toast.LENGTH_SHORT
         ).show()
     }
-    fun btAlterarOnClick(view: View) {
+    fun btSalvarOnClick(view: View) {
 
         //Validação dos campos de tela
 
         //acesso ao banco de dados
-        val cadastro : Cadastro = Cadastro(
-            binding.etCod.text.toString().toInt(),
-            binding.etNome.text.toString(),
-            binding.etTelefone.text.toString()
+        var msg = ""
 
-        )
+        if ( binding.etCod.text.toString().isEmpty()) {
+            val cadastro = Cadastro(
+                0,
+                binding.etNome.text.toString(),
+                binding.etTelefone.text.toString()
 
-        //Alteração no banco de dados
+            )
 
-        banco.alterar(cadastro)
+            //Inclusão no banco de dados
+
+            banco.inserir(cadastro)
+            msg = "Inclusão efetuada com sucesso."
+        } else {
+            val cadastro = Cadastro( binding.etCod.text.toString().toInt(),
+                binding.etNome.text.toString(),
+                binding.etTelefone.text.toString()
+            )
+
+            banco.alterar(cadastro)
+            msg = "Alteração efetuada com sucesso."
+
+        }
 
 
         //Apresentação da devolutiva visual para o usuário
 
         Toast.makeText(
             this,
-            "Alteração efetuada com sucesso.",
+            msg,
             Toast.LENGTH_SHORT
         ).show()
     }
