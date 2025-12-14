@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
             if (binding.etCod.text.toString().isEmpty()) {
                 val cadastro = Cadastro(
-                    0,
+                    binding.etCod.text.toString(),
                     binding.etNome.text.toString(),
                     binding.etTelefone.text.toString()
                 )
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 msg = "Inclusão efetuada com Sucesso."
             } else {
                 val cadastro = Cadastro(
-                    binding.etCod.text.toString().toInt(),
+                    binding.etCod.text.toString(),
                     binding.etNome.text.toString(),
                     binding.etTelefone.text.toString()
                 )
