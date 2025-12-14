@@ -40,6 +40,12 @@ class ListarActivity : AppCompatActivity() {
         initList()
     }
 
+    override fun onStart() {
+        super.onStart()
+        initList()
+    }
+
+
     private fun initList() {
 
         val cursor : Cursor = banco.listar()
